@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Dressing — Rent the closet next door</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1A1A2E;
+  --rose:#E8C4C4;
+  --warm:#F7F3F0;
+  --linen:#EDE8E3;
+  --rose-dark:#d4a0a0;
+  --navy-light:#2d2d4e;
+  --text-muted:#888;
+  --radius:16px;
+  --radius-sm:10px;
+}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--warm);color:var(--navy);min-height:100vh;overflow-x:hidden}
+h1,h2,h3,.serif{font-family:Georgia,serif}
+
+/* Layout */
+#app{display:flex;height:100vh;overflow:hidden;background:#f0ebe6}
+.phone{width:390px;min-width:390px;height:100%;background:var(--warm);overflow:hidden;position:relative;flex-shrink:0;border-right:1px solid var(--linen)}
+.screen{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;background:var(--warm);transition:opacity .3s ease,transform .3s ease}
+.screen.hidden{opacity:0;pointer-events:none;transform:translateX(20px)}
+
+/* Nav sidebar */
+.nav-sidebar{flex:1;background:var(--navy);padding:48px 32px;display:flex;flex-direction:column;gap:8px;overflow-y:auto}
+.nav-section-label{color:var(--rose);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;margin:20px 0 8px;padding-left:12px}
+.nav-btn{background:transparent;border:none;color:rgba(255,255,255,.6);font-family:inherit;font-size:14px;font-weight:500;padding:10px 12px;border-radius:8px;cursor:pointer;text-align:left;transition:all .15s;width:100%}
+.nav-btn:hover{background:rgba(255,255,255,.08);color:white}
+.nav-btn.active{background:var(--rose);color:var(--navy);font-weight:600}
+.nav-title{color:white;font-family:Georgia,serif;font-size:22px;font-weight:normal;margin-bottom:4px}
+.nav-sub{color:rgba(255,255,255,.4);font-size:12px;margin-bottom:32px}
+
+/* Common components */
+.btn-primary{background:var(--navy);color:white;border:none;border-radius:var(--radius-sm);padding:16px 24px;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;width:100%;transition:all .2s}
+.btn-primary:hover{background:var(--navy-light)}
+.btn-outline{background:transparent;color:var(--navy);border:1.5px solid var(--navy);border-radius:var(--radius-sm);padding:14px 24px;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;width:100%;transition:all .2s}
+.btn-rose{background:var(--rose);color:var(--navy);border:none;border-radius:var(--radius-sm);padding:14px 24px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s}
+.chip{background:var(--linen);color:var(--navy);border:none;border-radius:20px;padding:8px 16px;font-family:inherit;font-size:13px;cursor:pointer;transition:all .15s;white-space:nowrap}
+.chip.active{background:var(--navy);color:white}
+.badge{background:var(--rose);color:var(--navy);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:600}
+.badge-green{background:#d4edda;color:#1a5c2a;border-radius:20px;padding:4px 10px;font-size:11px;font-weight:600}
+.tag{background:var(--linen);color:var(--navy);border-radius:6px;padding:3px 8px;font-size:11px;font-weight:500}
+
+/* Top bar */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;position:sticky;top:0;background:var(--warm);z-index:10;border-bottom:1px solid var(--linen)}
+.topbar-title{font-family:Georgia,serif;font-size:18px}
+.back-btn{background:none;border:none;font-size:20px;cursor:pointer;color:var(--navy);padding:4px;line-height:1}
+.icon-btn{background:none;border:none;font-size:18px;cursor:pointer;color:var(--navy);padding:4px;line-height:1}
+
+/* Progress bar */
+.progress-bar{height:3px;background:var(--linen);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:var(--navy);border-radius:2px;transition:width .4s ease}
+
+/* Cards */
+.card{background:white;border-radius:var(--radius);overflow:hidden;box-shadow:0 2px 12px rgba(26,26,46,.06)}
+.card-p{padding:20px}
+
+/* Image placeholders */
+.img-placeholder{background:linear-gradient(135deg,var(--linen) 0%,var(--rose) 100%);display:flex;align-items:center;justify-content:center;font-size:32px;color:white}
+
+/* Bottom nav */
+.bottom-nav{display:flex;position:sticky;bottom:0;background:white;border-top:1px solid var(--linen);z-index:20}
+.bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 4px;gap:3px;background:none;border:none;cursor:pointer;font-family:inherit;color:var(--text-muted);font-size:10px;font-weight:500;transition:color .15s}
+.bnav-item.active{color:var(--navy)}
+.bnav-icon{font-size:20px;line-height:1}
+
+/* Form */
+.form-group{margin-bottom:16px}
+.form-label{font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;display:block}
+.form-input{width:100%;padding:12px 14px;border:1.5px solid var(--linen);border-radius:var(--radius-sm);font-family:inherit;font-size:15px;background:white;outline:none;transition:border-color .2s;color:var(--navy)}
+.form-input:focus{border-color:var(--navy)}
+
+/* Avatar */
+.avatar{border-radius:50%;object-fit:cover;background:linear-gradient(135deg,var(--rose),var(--linen));display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;color:var(--navy);flex-shrink:0}
+
+/* Stars */
+.stars{color:#f4b942;font-size:14px;letter-spacing:1px}
+
+/* Divider */
+.divider{height:1px;background:var(--linen);margin:16px 0}
+
+/* Item card */
+.item-card{border-radius:var(--radius);overflow:hidden;background:white;cursor:pointer}
+.item-img{width:100%;aspect-ratio:3/4;object-fit:cover}
+.item-info{padding:10px 12px 12px}
+.item-name{font-size:13px;font-weight:600;margin-bottom:2px;line-height:1.3}
+.item-lender{font-size:11px;color:var(--text-muted)}
+.item-price{font-size:13px;font-weight:700;color:var(--navy);margin-top:6px}
+
+/* Lender card */
+.lender-card{display:flex;align-items:center;gap:12px;padding:14px;background:white;border-radius:var(--radius);cursor:pointer}
+
+/* Status pill */
+.status-pill{border-radius:20px;padding:4px 12px;font-size:11px;font-weight:600;display:inline-block}
+.status-active{background:#d4edda;color:#1a5c2a}
+.status-pending{background:#fff3cd;color:#856404}
+.status-returned{background:var(--linen);color:var(--text-muted)}
+.status-paused{background:#f8d7da;color:#842029}
+
+/* Earnings */
+.earnings-big{font-family:Georgia,serif;font-size:42px;font-weight:normal;color:var(--navy)}
+.earnings-label{font-size:12px;color:var(--text-muted);font-weight:500}
+
+/* Animations */
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.fade-up{animation:fadeUp .4s ease both}
+.spinner{width:28px;height:28px;border:2.5px solid var(--linen);border-top-color:var(--navy);border-radius:50%;animation:spin .8s linear infinite}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--linen);border-radius:2px}
+
+/* Quiz option */
+.quiz-option{border:1.5px solid var(--linen);border-radius:var(--radius-sm);padding:14px 16px;cursor:pointer;transition:all .2s;background:white;font-family:inherit;font-size:14px;color:var(--navy);text-align:left;width:100%;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.quiz-option.selected{border-color:var(--navy);background:var(--navy);color:white}
+.quiz-option-emoji{font-size:20px;width:28px;text-align:center}
+
+/* Silhouette */
+.silhouette-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.silhouette-card{border:1.5px solid var(--linen);border-radius:12px;padding:16px 8px;text-align:center;cursor:pointer;transition:all .2s;background:white}
+.silhouette-card.selected{border-color:var(--navy);background:var(--navy);color:white}
+.silhouette-svg{font-size:36px;display:block;margin:0 auto 8px}
+.silhouette-label{font-size:11px;font-weight:600}
+
+/* Feed */
+.editorial-card{border-radius:var(--radius);overflow:hidden;position:relative;cursor:pointer}
+.editorial-img{width:100%;aspect-ratio:4/5;object-fit:cover}
+.editorial-overlay{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(26,26,46,.85));padding:20px 16px 16px}
+.editorial-label{color:white;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;opacity:.8}
+.editorial-title{color:white;font-family:Georgia,serif;font-size:18px;line-height:1.3}
+.rent-pill{background:var(--rose);color:var(--navy);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:700;border:none;cursor:pointer;margin-top:8px;display:inline-block}
+
+.ugc-card{border-radius:var(--radius);overflow:hidden;cursor:pointer;position:relative}
+.ugc-img{width:100%;aspect-ratio:3/4;object-fit:cover}
+.ugc-overlay{position:absolute;bottom:0;left:0;right:0;padding:12px;background:linear-gradient(transparent,rgba(26,26,46,.7))}
+.ugc-name{color:white;font-size:12px;font-weight:600}
+.ugc-item{color:rgba(255,255,255,.8);font-size:11px}
+.verified-badge{background:var(--rose);color:var(--navy);font-size:9px;font-weight:700;border-radius:10px;padding:2px 6px;display:inline-block;margin-left:4px}
+
+/* Calendar */
+.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-day{aspect-ratio:1;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;transition:all .15s}
+.cal-day.available:hover{background:var(--rose)}
+.cal-day.selected{background:var(--navy);color:white}
+.cal-day.range{background:var(--rose);color:var(--navy)}
+.cal-day.unavailable{color:var(--linen);cursor:not-allowed}
+.cal-day.header{font-size:11px;font-weight:600;color:var(--text-muted);cursor:default}
+
+/* Checkout row */
+.checkout-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--linen)}
+.checkout-row:last-child{border-bottom:none}
+.checkout-total{font-size:16px;font-weight:700}
+
+/* Review stars */
+.review-star{font-size:32px;cursor:pointer;transition:transform .1s}
+.review-star:hover{transform:scale(1.2)}
+
+/* Rental status card */
+.rental-card{background:white;border-radius:var(--radius);padding:16px;margin-bottom:12px}
+.rental-thumb{width:56px;height:56px;border-radius:8px;object-fit:cover;background:var(--linen);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.countdown{font-family:Georgia,serif;font-size:18px;color:var(--navy);font-weight:normal}
+.countdown-label{font-size:11px;color:var(--text-muted)}
+
+/* Chart bar */
+.chart-bar{background:var(--rose);border-radius:4px 4px 0 0;flex:1;min-width:0;transition:height .4s ease;position:relative;cursor:pointer}
+.chart-bar:hover{background:var(--rose-dark)}
+.chart-container{display:flex;align-items:flex-end;gap:6px;height:80px}
+.chart-label{font-size:10px;color:var(--text-muted);text-align:center;margin-top:4px}
+
+/* AI typing animation */
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.cursor{display:inline-block;width:2px;height:14px;background:var(--navy);margin-left:2px;animation:blink .8s infinite;vertical-align:middle}
+
+/* Coaching overlay */
+.camera-overlay{position:relative;background:#111;border-radius:var(--radius);overflow:hidden;aspect-ratio:3/4}
+.camera-guide{position:absolute;inset:16px;border:2px dashed rgba(255,255,255,.4);border-radius:12px;display:flex;align-items:center;justify-content:center}
+.camera-tip{position:absolute;bottom:16px;left:0;right:0;text-align:center;color:white;font-size:13px;font-weight:600;background:rgba(0,0,0,.5);padding:8px;backdrop-filter:blur(4px)}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="phone" id="phone">
+    <!-- screens injected by JS -->
+  </div>
+  <nav class="nav-sidebar">
+    <div class="nav-title">Dressing</div>
+    <div class="nav-sub">Prototype interactif — v1.0</div>
+    <div class="nav-section-label">Renter</div>
+    <button class="nav-btn active" onclick="nav('splash')">Splash / Onboarding</button>
+    <button class="nav-btn" onclick="nav('quiz')">Style Quiz</button>
+    <button class="nav-btn" onclick="nav('fit')">Fit Profile</button>
+    <button class="nav-btn" onclick="nav('instagram')">Instagram Import</button>
+    <button class="nav-btn" onclick="nav('home')">Home Feed</button>
+    <button class="nav-btn" onclick="nav('search')">Search & Filters</button>
+    <button class="nav-btn" onclick="nav('item')">Item Detail</button>
+    <button class="nav-btn" onclick="nav('checkout')">Checkout</button>
+    <button class="nav-btn" onclick="nav('rentals')">My Rentals</button>
+    <button class="nav-btn" onclick="nav('review')">Post-rental Review</button>
+    <div class="nav-section-label">Lender</div>
+    <button class="nav-btn" onclick="nav('ldash')">Dashboard</button>
+    <button class="nav-btn" onclick="nav('additem')">Add Item</button>
+    <button class="nav-btn" onclick="nav('items')">Item Management</button>
+    <button class="nav-btn" onclick="nav('earnings')">Earnings</button>
+    <button class="nav-btn" onclick="nav('booking')">Booking Request</button>
+    <button class="nav-btn" onclick="nav('activerental')">Active Rental</button>
+  </nav>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────
+const ITEMS = [
+  {id:1,name:'Robe midi en soie ivoire',brand:'Rouje',lender:'Léa M.',city:'Paris',price:28,days:4,fit:94,size:'36',condition:'Excellent',color:'Ivoire',occasion:'Dîner',emoji:'👗',img:'🤍'},
+  {id:2,name:'Blazer oversize camel',brand:'Sandro',lender:'Inès B.',city:'Lyon',price:22,days:4,fit:89,size:'38',condition:'Très bon',color:'Camel',occasion:'Bureau',emoji:'🧥',img:'🤎'},
+  {id:3,name:'Robe dos nu bordeaux',brand:'Ba&sh',lender:'Camille R.',city:'Paris',price:32,days:4,fit:91,size:'36',condition:'Excellent',color:'Bordeaux',occasion:'Mariage',emoji:'👗',img:'❤️'},
+  {id:4,name:'Combinaison lin blanc',brand:'Jacquemus',lender:'Sophie D.',city:'Bordeaux',price:36,days:4,fit:86,size:'38',condition:'Excellent',color:'Blanc',occasion:'Été',emoji:'🤍',img:'🌿'},
+  {id:5,name:'Manteau camel en laine',brand:'A.P.C.',lender:'Margot L.',city:'Paris',price:42,days:4,fit:93,size:'36',condition:'Très bon',color:'Camel',occasion:'Automne',emoji:'🧥',img:'🍂'},
+  {id:6,name:'Robe fleurie midi',brand:'Rouje',lender:'Chloé P.',city:'Nice',price:26,days:4,fit:88,size:'38',condition:'Bon',color:'Multicolore',occasion:'Week-end',emoji:'🌸',img:'🌸'},
+];
+
+const LENDERS = [
+  {id:1,name:'Léa Martin',city:'Paris',rating:4.9,rentals:47,followers:312,tags:['Minimaliste','Parisienne','Luxe discret'],bio:'Garde-robe capsule. J\'aime les pièces qui traversent les saisons.',emoji:'👩‍🦰'},
+  {id:2,name:'Inès Blanc',city:'Lyon',rating:4.8,rentals:31,followers:198,tags:['Créative','Colorée','Street'],bio:'Directrice artistique. Ma garde-robe est mon mood board.',emoji:'👩‍🦱'},
+  {id:3,name:'Camille Roux',city:'Paris',rating:5.0,rentals:22,followers:156,tags:['Romantique','Robes','Mariages'],bio:'Amoureuse des robes. Chaque pièce a une histoire.',emoji:'👩‍🦳'},
+];
+
+const EDITORIAL = [
+  {title:'Le dîner parfait à Paris',label:'Édito de la semaine',items:['Robe midi ivoire','Mules en cuir','Pochette dorée'],emoji:'🍷'},
+  {title:'Invitée de mariage — l\'edit',label:'Occasion spéciale',items:['Robe dos nu','Escarpins nude','Sac en raphia'],emoji:'💐'},
+  {title:'Weekend en Provence',label:'Escapade',items:['Combinaison lin','Sandales plates','Chapeau de paille'],emoji:'🌿'},
+];
+
+// ── ROUTER ────────────────────────────────────────────────────────────────
+let currentScreen = 'splash';
+let quizStep = 0;
+let quizAnswers = {};
+let selectedItem = ITEMS[0];
+let calendarSelected = [14,15,16,17];
+let reviewStars = 0;
+let addItemStep = 0;
+let aiGenerating = false;
+
+function nav(screen) {
+  currentScreen = screen;
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`[onclick="nav('${screen}')"]`)?.classList.add('active');
+  render();
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────
+function render() {
+  const phone = document.getElementById('phone');
+  const screens = {
+    splash: renderSplash,
+    quiz: renderQuiz,
+    fit: renderFit,
+    instagram: renderInstagram,
+    home: renderHome,
+    search: renderSearch,
+    item: renderItem,
+    checkout: renderCheckout,
+    rentals: renderRentals,
+    review: renderReview,
+    ldash: renderLDash,
+    additem: renderAddItem,
+    items: renderItems,
+    earnings: renderEarnings,
+    booking: renderBooking,
+    activerental: renderActiveRental,
+  };
+  phone.innerHTML = (screens[currentScreen] || renderSplash)();
+  // re-attach events after render
+  attachEvents();
+}
+
+// ── SCREENS ───────────────────────────────────────────────────────────────
+
+function renderSplash() {
+  return `
+<div class="screen fade-up" style="background:var(--navy);display:flex;flex-direction:column;justify-content:space-between;padding:60px 32px 48px;min-height:100vh">
+  <div>
+    <div style="font-family:Georgia,serif;font-size:11px;letter-spacing:.2em;color:var(--rose);text-transform:uppercase;margin-bottom:60px">Dressing</div>
+    <div style="font-family:Georgia,serif;font-size:42px;color:white;line-height:1.15;margin-bottom:16px">
+      Louez la garde-robe de votre voisine.
+    </div>
+    <div style="font-size:15px;color:rgba(255,255,255,.55);line-height:1.6">
+      Des pièces magnifiques, chez de vraies femmes en France. Taillées comme vous.
+    </div>
+  </div>
+  <div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <button class="btn-primary" style="background:var(--rose);color:var(--navy)" onclick="nav('quiz')">Commencer</button>
+      <button class="btn-outline" style="border-color:rgba(255,255,255,.2);color:rgba(255,255,255,.7)" onclick="nav('home')">J'ai déjà un compte</button>
+    </div>
+    <div style="text-align:center;margin-top:20px;font-size:12px;color:rgba(255,255,255,.3)">
+      Continuer avec  <span style="color:rgba(255,255,255,.5)">Apple</span>  ·  <span style="color:rgba(255,255,255,.5)">Google</span>
+    </div>
+    <div style="margin-top:40px;display:flex;gap:24px;justify-content:center">
+      ${['4 800+ pièces','720 loueurs','Livraison en 48h'].map(t=>`<div style="text-align:center"><div style="font-family:Georgia,serif;font-size:16px;color:white">${t.split(' ')[0]+' '+t.split(' ')[1]}</div><div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:2px">${t.split(' ').slice(2).join(' ')}</div></div>`).join('')}
+    </div>
+  </div>
+</div>`;
+}
+
+const QUIZ_QUESTIONS = [
+  {
+    q: 'Quelle est votre esthétique ?',
+    sub: 'Choisissez celle qui vous ressemble le plus',
+    options:[
+      {emoji:'🤍',label:'Minimaliste & épurée','val':'minimaliste'},
+      {emoji:'🌸',label:'Romantique & féminine','val':'romantique'},
+      {emoji:'🖤',label:'Parisienne & décontractée','val':'parisienne'},
+      {emoji:'✨',label:'Glamour & affirmée','val':'glamour'},
+    ]
+  },
+  {
+    q: 'Pour quelles occasions louez-vous ?',
+    sub: 'Plusieurs réponses possibles',
+    multi: true,
+    options:[
+      {emoji:'💍',label:'Mariages & événements','val':'mariage'},
+      {emoji:'🍽️',label:'Dîners & sorties','val':'diner'},
+      {emoji:'🏖️',label:'Vacances & week-ends','val':'vacances'},
+      {emoji:'💼',label:'Bureau & professionnel','val':'bureau'},
+    ]
+  },
+  {
+    q: 'Quelles couleurs évitez-vous ?',
+    sub: 'Nous les filtrerons de vos recommandations',
+    multi: true,
+    options:[
+      {emoji:'🟡',label:'Jaune & orange','val':'jaune'},
+      {emoji:'🟢',label:'Vert vif','val':'vert'},
+      {emoji:'🟣',label:'Violet','val':'violet'},
+      {emoji:'🔴',label:'Rouge vif','val':'rouge'},
+    ]
+  },
+  {
+    q: 'Quelles marques adorez-vous ?',
+    sub: 'Pour affiner nos recommandations',
+    multi: true,
+    options:[
+      {emoji:'🌹',label:'Rouje · Jacquemus','val':'french'},
+      {emoji:'🏷️',label:'Sandro · Maje','val':'sandro'},
+      {emoji:'⚡',label:'A.P.C. · Isabel Marant','val':'apc'},
+      {emoji:'💎',label:'Chloé · Ami','val':'luxe'},
+    ]
+  },
+  {
+    q: 'Comment décrivez-vous votre style ?',
+    sub: 'Votre façon de vous habiller au quotidien',
+    options:[
+      {emoji:'🎨',label:'J\'expérimente et j\'ose','val':'creative'},
+      {emoji:'🪨',label:'Je mise sur les classiques','val':'classique'},
+      {emoji:'🔀',label:'Ça dépend de mon humeur','val':'mixte'},
+      {emoji:'🌿',label:'Naturel & sans effort','val':'naturel'},
+    ]
+  },
+  {
+    q: 'Votre budget habituel par location ?',
+    sub: 'Toutes durées confondues',
+    options:[
+      {emoji:'💸',label:'Moins de 30€','val':'budget'},
+      {emoji:'💳',label:'30–60€','val':'mid'},
+      {emoji:'💎',label:'60–100€','val':'premium'},
+      {emoji:'👑',label:'100€+','val':'luxe'},
+    ]
+  },
+];
+
+function renderQuiz() {
+  const q = QUIZ_QUESTIONS[quizStep];
+  const pct = Math.round(((quizStep+1)/QUIZ_QUESTIONS.length)*100);
+  const selected = quizAnswers[quizStep] || (q.multi ? [] : null);
+  return `
+<div class="screen fade-up" style="min-height:100vh;display:flex;flex-direction:column;padding:0">
+  <div style="padding:20px 20px 0">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <button class="back-btn" onclick="${quizStep>0?'quizBack()':'nav(\'splash\')'}" style="font-size:24px;background:none;border:none;cursor:pointer;color:var(--navy)">←</button>
+      <span style="font-size:13px;color:var(--text-muted);font-weight:500">${quizStep+1} / ${QUIZ_QUESTIONS.length}</span>
+      <div style="width:32px"></div>
+    </div>
+    <div class="progress-bar" style="margin-bottom:32px"><div class="progress-fill" style="width:${pct}%"></div></div>
+    <div style="font-family:Georgia,serif;font-size:26px;line-height:1.25;margin-bottom:8px">${q.q}</div>
+    <div style="font-size:14px;color:var(--text-muted);margin-bottom:28px">${q.sub}</div>
+  </div>
+  <div style="padding:0 20px;flex:1">
+    ${q.options.map((o,i)=>{
+      const isSel = q.multi ? (selected||[]).includes(o.val) : selected===o.val;
+      return `<button class="quiz-option${isSel?' selected':''}" onclick="quizSelect(${quizStep},${JSON.stringify(o.val)},${!!q.multi})">
+        <span class="quiz-option-emoji">${o.emoji}</span>
+        <span>${o.label}</span>
+      </button>`;
+    }).join('')}
+  </div>
+  <div style="padding:20px">
+    <button class="btn-primary" onclick="quizNext()" ${(!selected || (Array.isArray(selected)&&!selected.length))?'style="opacity:.4"':''}>
+      ${quizStep===QUIZ_QUESTIONS.length-1?'Voir mes résultats':'Continuer →'}
+    </button>
+  </div>
+</div>`;
+}
+
+function renderFit() {
+  return `
+<div class="screen fade-up" style="min-height:100vh;padding:0 0 32px">
+  <div style="padding:48px 20px 0">
+    <div style="font-family:Georgia,serif;font-size:11px;letter-spacing:.15em;color:var(--rose-dark);text-transform:uppercase;margin-bottom:12px">Mon profil mensurations</div>
+    <div style="font-family:Georgia,serif;font-size:28px;line-height:1.25;margin-bottom:8px">Taillées pour vous.</div>
+    <div style="font-size:14px;color:var(--text-muted);line-height:1.6;margin-bottom:32px">Ces informations permettent à notre algorithme de vous indiquer la probabilité que chaque pièce vous aille parfaitement.</div>
+  </div>
+  <div style="padding:0 20px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
+      <div class="form-group"><label class="form-label">Taille (cm)</label><input class="form-input" type="number" placeholder="168" value="168"/></div>
+      <div class="form-group"><label class="form-label">Poids (kg, optionnel)</label><input class="form-input" type="number" placeholder="—"/></div>
+      <div class="form-group"><label class="form-label">Tour de poitrine (cm)</label><input class="form-input" type="number" placeholder="88"/></div>
+      <div class="form-group"><label class="form-label">Tour de taille (cm)</label><input class="form-input" type="number" placeholder="68"/></div>
+    </div>
+    <div class="form-group" style="margin-bottom:24px"><label class="form-label">Ma taille habituelle</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        ${['XS','S','M','L','XL'].map((s,i)=>`<button class="chip${i===1?' active':''}" style="min-width:52px">${s}</button>`).join('')}
+        ${['34','36','38','40','42'].map((s,i)=>`<button class="chip${i===1?' active':''}">${s}</button>`).join('')}
+      </div>
+    </div>
+    <div style="margin-bottom:24px">
+      <div class="form-label" style="margin-bottom:12px">Silhouette</div>
+      <div class="silhouette-grid">
+        ${[['⏳','Sablier'],['🔺','Triangulaire'],['🟦','Rectangulaire'],['🍐','Poire'],['⭕','Ronde'],['💎','Diamant']].map(([e,l],i)=>`
+        <div class="silhouette-card${i===0?' selected':''}">
+          <span class="silhouette-svg">${e}</span>
+          <span class="silhouette-label">${l}</span>
+        </div>`).join('')}
+      </div>
+    </div>
+    <button class="btn-primary" onclick="nav('instagram')">Enregistrer mon profil →</button>
+  </div>
+</div>`;
+}
+
+function renderInstagram() {
+  return `
+<div class="screen fade-up" style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;text-align:center">
+  <div style="font-size:48px;margin-bottom:24px">📸</div>
+  <div style="font-family:Georgia,serif;font-size:28px;margin-bottom:12px">Votre style en 3 mots.</div>
+  <div style="font-size:14px;color:var(--text-muted);line-height:1.6;margin-bottom:32px">Connectez Instagram pour que notre IA analyse votre style visuel et personnalise encore mieux vos recommandations.</div>
+  <div id="insta-state">
+    <button class="btn-primary" style="margin-bottom:12px;background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);border:none" onclick="simulateInstagram()">
+      Connecter Instagram
+    </button>
+    <button class="btn-outline" onclick="nav('home')" style="width:100%">Passer cette étape</button>
+  </div>
+</div>`;
+}
+
+function simulateInstagram() {
+  document.getElementById('insta-state').innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;gap:16px">
+      <div class="spinner"></div>
+      <div style="font-size:14px;color:var(--text-muted)">Analyse de votre style en cours…</div>
+    </div>`;
+  setTimeout(()=>{
+    document.getElementById('insta-state').innerHTML = `
+      <div class="fade-up" style="background:white;border-radius:var(--radius);padding:24px;width:100%;margin-bottom:16px">
+        <div style="font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--text-muted);text-transform:uppercase;margin-bottom:16px">Votre style analysé</div>
+        <div style="display:flex;gap:8px;justify-content:center;margin-bottom:16px">
+          ${['Minimaliste','Parisienne','Intemporelle'].map(t=>`<span class="badge" style="font-size:13px;padding:6px 14px">${t}</span>`).join('')}
+        </div>
+        <div style="font-size:13px;color:var(--text-muted);line-height:1.5">Basé sur vos 24 dernières publications. Nous avons détecté une préférence pour les tons neutres, les coupes épurées et les pièces françaises.</div>
+      </div>
+      <button class="btn-primary" onclick="nav('home')">Découvrir mon feed →</button>`;
+  }, 2200);
+}
+
+function renderHome() {
+  return `
+<div class="screen fade-up" style="min-height:100vh;padding-bottom:80px">
+  <!-- Header -->
+  <div style="padding:20px 20px 0;display:flex;align-items:center;justify-content:space-between">
+    <div>
+      <div style="font-family:Georgia,serif;font-size:11px;letter-spacing:.15em;color:var(--rose-dark);text-transform:uppercase">Dressing</div>
+      <div style="font-family:Georgia,serif;font-size:22px">Bonjour, Chloé ✨</div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <button class="icon-btn">🔔</button>
+      <div class="avatar" style="width:36px;height:36px;background:var(--rose);font-size:14px">C</div>
+    </div>
+  </div>
+  <!-- Occasion filters -->
+  <div style="padding:16px 20px 0;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none">
+    ${['Pour vous','Mariage','Dîner','Vacances','Bureau','Week-end'].map((t,i)=>`<button class="chip${i===0?' active':''}" onclick="this.closest('.screen').querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));this.classList.add('active')">${t}</button>`).join('')}
+  </div>
+  <!-- Editorial card -->
+  <div style="padding:16px 20px 0">
+    <div class="editorial-card" style="margin-bottom:4px" onclick="nav('item')">
+      <div class="editorial-img img-placeholder" style="background:linear-gradient(135deg,#c9b8a8 0%,#8b7355 100%);position:relative">
+        <div style="font-size:64px;opacity:.6">👗</div>
+        <div class="editorial-overlay">
+          <div class="editorial-label">Édito de la semaine</div>
+          <div class="editorial-title">Le dîner parfait à Paris</div>
+          <button class="rent-pill">Louer maintenant</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- For You shelf -->
+  <div style="padding:20px 0 0">
+    <div style="padding:0 20px;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div style="font-family:Georgia,serif;font-size:18px">Pour vous</div>
+      <button style="background:none;border:none;font-size:13px;color:var(--rose-dark);cursor:pointer;font-family:inherit;font-weight:600">Tout voir</button>
+    </div>
+    <div style="display:flex;gap:12px;overflow-x:auto;padding:0 20px;scrollbar-width:none">
+      ${ITEMS.slice(0,4).map(item=>`
+      <div class="item-card" style="min-width:150px;max-width:150px" onclick="nav('item')">
+        <div class="item-img img-placeholder" style="background:linear-gradient(135deg,var(--linen),var(--rose));aspect-ratio:3/4;display:flex;align-items:center;justify-content:center">
+          <span style="font-size:42px">${item.emoji}</span>
+        </div>
+        <div class="item-info">
+          <div style="margin-bottom:4px"><span class="badge" style="font-size:10px">${item.fit}% fit</span></div>
+          <div class="item-name">${item.name}</div>
+          <div class="item-lender">par ${item.lender}</div>
+          <div class="item-price">${item.price}€ / 4j</div>
+        </div>
+      </div>`).join('')}
+    </div>
+  </div>
+  <!-- Trending lenders -->
+  <div style="padding:20px 20px 0">
+    <div style="font-family:Georgia,serif;font-size:18px;margin-bottom:12px">Placards tendance</div>
+    ${LENDERS.map(l=>`
+    <div class="lender-card" style="margin-bottom:8px" onclick="nav('item')">
+      <div class="avatar" style="width:48px;height:48px;font-size:20px;background:var(--rose)">${l.emoji}</div>
+      <div style="flex:1">
+        <div style="font-weight:600;font-size:14px">${l.name}</div>
+        <div style="font-size:12px;color:var(--text-muted)">${l.city} · ${l.rentals} locations</div>
+        <div style="display:flex;gap:4px;margin-top:4px">
+          ${l.tags.slice(0,2).map(t=>`<span class="tag">${t}</span>`).join('')}
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div class="stars">⭐ ${l.rating}</div>
+        <button class="btn-rose" style="padding:6px 12px;font-size:12px;margin-top:6px">Suivre</button>
+      </div>
+    </div>`).join('')}
+  </div>
+  <!-- UGC grid -->
+  <div style="padding:20px 20px 0">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div style="font-family:Georgia,serif;font-size:18px">Portées en vrai 📸</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      ${[['Margaux G.','Robe midi Rouje','🌹','#c9b8a8'],['Julie K.','Blazer Sandro','💼','#b8c4d0'],['Elise F.','Combinaison Jacquemus','☀️','#d0c4a8'],['Sarah M.','Manteau A.P.C.','🍂','#c4b8a8']].map(([name,item,e,c])=>`
+      <div class="ugc-card" onclick="nav('item')">
+        <div class="ugc-img img-placeholder" style="background:linear-gradient(160deg,${c},${c}aa);position:relative">
+          <div style="font-size:52px;display:flex;align-items:center;justify-content:center;height:100%">${e}</div>
+          <div class="ugc-overlay">
+            <div class="ugc-name">${name}<span class="verified-badge">✓</span></div>
+            <div class="ugc-item">${item}</div>
+          </div>
+        </div>
+      </div>`).join('')}
+    </div>
+  </div>
+  ${renderBottomNav('home')}
+</div>`;
+}
+
+function renderSearch() {
+  return `
+<div class="screen fade-up" style="min-height:100vh;padding-bottom:80px">
+  <div style="padding:20px">
+    <div style="font-family:Georgia,serif;font-size:22px;margin-bottom:16px">Rechercher</div>
+    <div style="position:relative;margin-bottom:16px">
+      <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:16px">🔍</span>
+      <input class="form-input" placeholder="Robe, marque, occasion…" style="padding-left:42px"/>
+    </div>
+    <!-- Filter chips -->
+    <div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin-bottom:16px">
+      ${['Taille','Couleur','Occasion','Prix','Disponibilité','Marque'].map((f,i)=>`<button class="chip" style="display:flex;align-items:center;gap:4px">⊕ ${f}</button>`).join('')}
+    </div>
+    <!-- Active filters -->
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <span class="chip active" style="display:flex;align-items:center;gap:4px">Taille 36 ✕</span>
+      <span class="chip active" style="display:flex;align-items:center;gap:4px">Mariage ✕</span>
+    </div>
+    <!-- Results -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div style="font-size:13px;color:var(--text-muted)">48 résultats · triés par <strong>fit</strong></div>
+      <button style="background:none;border:none;font-size:12px;color:var(--navy);cursor:pointer;font-family:inherit">⇅ Trier</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      ${ITEMS.map(item=>`
+      <div class="item-card" onclick="nav('item')" style="cursor:pointer">
+        <div class="img-placeholder" style="aspect-ratio:3/4;background:linear-gradient(135deg,var(--linen),var(--rose));display:flex;align-items:center;justify-content:center">
+          <span style="font-size:42px">${item.emoji}</span>
+        </div>
+        <div class="item-info">
+          <div style="margin-bottom:4px"><span class="badge" style="font-size:10px">${item.fit}% fit</span></div>
+          <div class="item-name">${item.name}</div>
+          <div class="item-lender">${item.brand} · par ${item.lender}</div>
+          <div class="item-price">${item.price}€ / 4j</div>
+        </div>
+      </div>`).join('')}
+    </div>
+  </div>
+  ${renderBottomNav('search')}
+</div>`;
+}
+
+function renderItem() {
+  const item = selectedItem;
+  return `
+<div class="screen fade-up" style="min-height:100vh;padding-bottom:100px">
+  <!-- Photo carousel -->
+  <div style="position:relative">
+    <div class="img-placeholder" style="height:440px;background:linear-gradient(160deg,#c9b8a8,#a89888);font-size:96px">
+      ${item.emoji}
+    </div>
+    <button onclick="nav('home')" style="position:absolute;top:16px;left:16px;background:rgba(255,255,255,.9);border:none;border-radius:50%;width:40px;height:40px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center">←</button>
+    <button style="position:absolute;top:16px;right:16px;background:rgba(255,255,255,.9);border:none;border-radius:50%;width:40px;height:40px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center">♡</button>
+    <div style="position:absolute;bottom:16px;right:16px"><span class="badge" style="font-size:13px;padding:6px 14px">94% fit ✓</span></div>
+    <!-- Dot indicators -->
+    <div style="position:absolute;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:4px">
+      ${[1,2,3,4].map((d,i)=>`<div style="width:${i===0?'16px':'6px'};height:6px;border-radius:3px;background:${i===0?'white':'rgba(255,255,255,.5)'}"></div>`).join('')}
+    </div>
+  </div>
+  <div style="padding:20px">
+    <div style="display:flex;align-items:start;justify-content:space-between;margin-bottom:4px">
+      <div>
+        <div style="font-size:11px;color:var(--text-muted);font-weight:600;letter-spacing:.05em;text-transform:uppercase;margin-bottom:4px">${item.brand}</div>
+        <div style="font-family:Georgia,serif;font-size:22px;line-height:1.25">${item.name}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-family:Georgia,serif;font-size:22px">${item.price}€</div>
+        <div style="font-size:11px;color:var(--text-muted)">/ 4 jours</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <span class="tag">Taille ${item.size}</span>
+      <span class="tag">${item.condition}</span>
+      <span class="tag">${item.color}</span>
+    </div>
+    <!-- Lender -->
+    <div style="background:var(--linen);border-radius:12px;padding:14px;display:flex;gap:12px;align-items:center;margin-bottom:16px;cursor:pointer">
+      <div class="avatar" style="width:44px;height:44px;font-size:18px;background:var(--rose)">👩‍🦰</div>
+      <div style="flex:1">
+        <div style="font-weight:600;font-size:14px">${item.lender}</div>
+        <div style="font-size:12px;color:var(--text-muted)">${item.city} · ⭐ 4.9 · 47 locations</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:2px">Minimaliste · Parisienne</div>
+      </div>
+      <button class="btn-rose" style="padding:6px 14px;font-size:12px">Voir →</button>
+    </div>
+    <!-- Fit confidence -->
+    <div style="background:white;border-radius:12px;padding:14px;margin-bottom:16px;border:1px solid var(--linen)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <div style="font-weight:600;font-size:14px">Probabilité de fit</div>
+        <span class="badge">94%</span>
+      </div>
+      <div style="height:8px;background:var(--linen);border-radius:4px;overflow:hidden;margin-bottom:8px">
+        <div style="height:100%;width:94%;background:linear-gradient(90deg,var(--rose-dark),var(--navy));border-radius:4px"></div>
+      </div>
+      <div style="font-size:12px;color:var(--text-muted)">Basé sur votre taille 36, votre tour de poitrine et les avis des loueurs précédentes.</div>
+    </div>
+    <!-- Duration selector -->
+    <div style="margin-bottom:16px">
+      <div style="font-family:Georgia,serif;font-size:16px;margin-bottom:10px">Durée de location</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px">
+        ${[['4 jours','Week-end',`${item.price*4}€`],['8 jours','Semaine',`${item.price*7}€`],['14 jours','2 semaines',`${item.price*12}€`]].map(([d,l,p],i)=>`
+        <button onclick="this.parentNode.querySelectorAll('button').forEach(b=>b.style.background='white');this.style.background='var(--navy)';this.style.color='white'" style="border:1.5px solid var(--linen);border-radius:10px;padding:12px 8px;background:${i===0?'var(--navy)':'white'};color:${i===0?'white':'var(--navy)'};font-family:inherit;cursor:pointer;transition:all .2s">
+          <div style="font-weight:700;font-size:15px">${d}</div>
+          <div style="font-size:11px;opacity:.7">${l}</div>
+          <div style="font-weight:600;margin-top:4px;font-size:13px">${p}</div>
+        </button>`).join('')}
+      </div>
+    </div>
+    <!-- Calendar -->
+    <div style="margin-bottom:20px">
+      <div style="font-family:Georgia,serif;font-size:16px;margin-bottom:12px">Disponibilité — Juin 2026</div>
+      <div class="calendar-grid" style="margin-bottom:8px">
+        ${['L','M','M','J','V','S','D'].map(d=>`<div class="cal-day header">${d}</div>`).join('')}
+        ${Array.from({length:30},(_, i)=>{
+          const d=i+1;
+          const isUnavail=[5,6,7,12,13,19,20,26,27].includes(d);
+          const isSel=calendarSelected.includes(d);
+          const isRange=d>=calendarSelected[0]&&d<=calendarSelected[calendarSelected.length-1]&&!isSel;
+          return `<div class="cal-day ${isUnavail?'unavailable':isSel?'selected':isRange?'range':'available'}">${d}</div>`;
+        }).join('')}
+      </div>
+      <div style="display:flex;gap:12px;font-size:11px">
+        <div style="display:flex;align-items:center;gap:4px"><div style="width:10px;height:10px;border-radius:2px;background:var(--navy)"></div> Sélectionné</div>
+        <div style="display:flex;align-items:center;gap:4px"><div style="width:10px;height:10px;border-radius:2px;background:var(--rose)"></div> Votre période</div>
+        <div style="display:flex;align-items:center;gap:4px"><div style="width:10px;height:10px;border-radius:2px;background:var(--linen)"></div> Indisponible</div>
+      </div>
+    </div>
+    <!-- Wear it with -->
+    <div style="margin-bottom:20px">
+      <div style="font-family:Georgia,serif;font-size:16px;margin-bottom:10px">Porter avec</div>
+      <div style="display:flex;gap:10px;overflow-x:auto;scrollbar-width:none">
+        ${[['Mules en cuir','Rouje','12€','👠'],['Pochette dorée','Sézane','8€','👛'],['Collier fin','Pamela Love','10€','📿']].map(([n,b,p,e])=>`
+        <div style="min-width:100px;background:white;border-radius:10px;overflow:hidden">
+          <div class="img-placeholder" style="height:80px;background:var(--linen);display:flex;align-items:center;justify-content:center;font-size:28px">${e}</div>
+          <div style="padding:8px"><div style="font-size:11px;font-weight:600;line-height:1.2">${n}</div><div style="font-size:10px;color:var(--text-muted)">${p}/j</div></div>
+        </div>`).join('')}
+      </div>
+    </div>
+    <!-- Reviews -->
+    <div style="margin-bottom:20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div style="font-family:Georgia,serif;font-size:16px">Avis (12)</div>
+        <div class="stars">⭐ 4.9</div>
+      </div>
+      ${[['Marie L.','36','Le fit est parfait, la robe est encore plus belle en vrai. Livrée en 2 jours ✨'],['Emma D.','38','Excellente communication, pièce impeccable. Je recommande !']].map(([name,size,comment])=>`
+      <div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--linen)">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+          <div class="avatar" style="width:32px;height:32px;font-size:13px;background:var(--rose)">${name[0]}</div>
+          <div>
+            <div style="font-size:13px;font-weight:600">${name} · T${size}</div>
+            <div class="stars" style="font-size:11px">⭐⭐⭐⭐⭐</div>
+          </div>
+        </div>
+        <div style="font-size:13px;color:var(--text-muted);line-height:1.5">${comment}</div>
+      </div>`).join('')}
+    </div>
+  </div>
+  <!-- Sticky CTA -->
+  <div style="position:fixed;bottom:0;left:0;width:390px;background:white;padding:16px 20px;border-top:1px solid var(--linen);display:flex;gap:10px;align-items:center">
+    <div style="flex:1">
+      <div style="font-size:12px;color:var(--text-muted)">14–18 juin · 4 jours</div>
+      <div style="font-family:Georgia,serif;font-size:20px">${item.price*4}€ <span style="font-size:13px;font-weight:normal;color:var(--text-muted)">total</span></div>
+    </div>
+    <button class="btn-primary" style="width:auto;padding:14px 28px" onclick="nav('checkout')">Louer →</button>
+  </div>
+</div>`;
+}
+
+function renderCheckout() {
+  return `
+<div class="screen fade-up" style="min-height:100vh;padding-bottom:40px">
+  <div class="topbar">
+    <button class="back-btn" onclick="nav('item')">←</button>
+    <span class="topbar-title">Confirmer la location</span>
+    <div style="width:32px"></div>
+  </div>
+  <div style="padding:20px">
+    <!-- Item summary -->
+    <div style="display:flex;gap:14px;background:white;border-radius:var(--radius);padding:14px;margin-bottom:20px">
+      <div class="img-placeholder" style="width:72px;height:96px;border-radius:8px;font-size:32px;flex-shrink:0;background:linear-gradient(135deg,var(--linen),var(--rose))">👗</div>
+      <div>
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:2px">Rouje</div>
+        <div style="font-family:Georgia,serif;font-size:16px;line-height:1.3;margin-bottom:6px">Robe midi en soie ivoire</div>
+        <div style="font-size:12px;color:var(--text-muted)">Taille 36 · Excellent état</div>
+        <div style="font-size:12px;color:var(--text-muted)">par Léa M. · Paris</div>
+      </div>
+    </div>
+    <!-- Dates -->
+    <div style="background:white;border-radius:var(--radius);padding:16px;margin-bottom:16px">
+      <div style="font-family:Georgia,serif;font-size:16px;margin-bottom:12px">Dates de location</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="background:var(--warm);border-radius:10px;padding:12px;text-align:center">
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">Réception estimée</div>
+          <div style="font-weight:600">Lun. 15 juin</div>
+        </div>
+        <div style="background:var(--warm);border-radius:10px;padding:12px;text-align:center">
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">Retour avant le</div>
+          <div style="font-weight:600">Ven. 19 juin</div>
+        </div>
+      </div>
+      <div style="margin-top:10px;font-size:12px;color:var(--text-muted);line-height:1.5">📦 Livraison Mondial Relay · Étiquette retour incluse</div>
+    </div>
+    <!-- Price breakdown -->
+    <div style="background:white;border-radius:var(--radius);padding:16px;margin-bottom:16px">
+      <div style="font-family:Georgia,serif;font-size:16px;margin-bottom:12px">Récapitulatif</div>
+      <div class="checkout-row">
+        <span style="font-size:14px">Location 4 jours (28€/j)</span>
+        <span style="font-weight:600">112€</span>
+      </div>
+      <div class="checkout-row">
+        <span style="font-size:14px">Assurance plateforme</span>
+        <span style="font-weight:600">3€</span>
+      </div>
+      <div class="checkout-row" style="border-bottom:none;padding-top:16px">
+        <span class="checkout-total">Total</span>
+        <span class="checkout-total">115€</span>
+      </div>
+    </div>
+    <!-- Payment -->
+    <div style="background:white;border-radius:var(--radius);padding:16px;margin-bottom:16px">
+      <div style="font-family:Georgia,serif;font-size:16px;margin-bottom:12px">Paiement</div>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <div style="flex:1;border:1.5px solid var(--navy);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:8px;cursor:pointer">
+          <span style="font-size:20px">💳</span>
+          <span style="font-size:14px;font-weight:600">•••• 4821</span>
+        </div>
+        <div style="border:1.5px solid var(--linen);border-radius:10px;padding:10px 12px;cursor:pointer;background:black;display:flex;align-items:center">
+          <span style="font-size:16px"> Pay</span>
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label">Adresse de livraison</label>
+        <input class="form-input" value="12 rue de la Paix, 75001 Paris"/>
+      </div>
+    </div>
+    <!-- Insurance note -->
+    <div style="background:var(--linen);border-radius:10px;padding:12px 14px;margin-bottom:20px;font-size:12px;color:var(--text-muted);line-height:1.5">
+      🛡️ Votre location est protégée par l'assurance Dressing. En cas de dommage, vous serez contactée dans les 48h.
+    </div>
+    <button class="btn-primary" onclick="showConfirm()">Confirmer et payer 115€</button>
+    <div style="text-align:center;margin-top:12px;font-size:12px;color:var(--text-muted)">Paiement sécurisé · Annulation gratuite 24h avant</div>
+    <div id="confirm-success"></div>
+  </div>
+</div>`;
+}
+
+function showConfirm() {
+  document.getElementById('confirm-success').innerHTML = `
+  <div class="fade-up" style="background:var(--navy);border-radius:var(--radius);padding:24px;text-align:center;margin-top:16px">
+    <div style="font-size:40px;margin-bottom:12px">🎉</div>
+    <div style="font-family:Georgia,serif;font-size:22px;color:white;margin-bottom:8px">C'est confirmé !</div>
+    <div style="font-size:13px;color:rgba(255,255,255,.65);line-height:1.5;margin-bottom:16px">Votre outfit est en chemin. Léa M. va préparer votre commande et vous envoyer un numéro de suivi.</div>
+    <button class="btn-rose" onclick="nav('rentals')" style="width:100%">Voir mes locations →</button>
+  </div>`;
+}
+
+function renderRentals() {
+  return `
+<div class="screen fade-up" style="min-height:100vh;padding-bottom:80px">
+  <div style="padding:20px 20px 0">
+    <div style="font-family:Georgia,serif;font-size:26px;margin-bottom:16px">Mes locations</div>
+    <!-- Tabs -->
+    <div style="display:flex;gap:0;background:var(--linen);border-radius:10px;padding:3px;margin-bottom:20px">
+      ${['En cours','À venir','Passées'].map((t,i)=>`<button onclick="this.parentNode.querySelectorAll('button').forEach(b=>{b.style.background='transparent';b.style.fontWeight='500';b.style.color='var(--text-muted)'});this.style.background='white';this.style.fontWeight='700';this.style.color='var(--navy)'" style="flex:1;border:none;padding:9px;border-radius:8px;font-family:inherit;font-size:13px;cursor:pointer;transition:all .2s;background:${i===0?'white':'transparent'};font-weight:${i===0?'700':'500'};color:${i===0?'var(--navy)':'var(--text-muted)'}">${t}</button>`).join('')}
+    </div>
+    <!-- Active rental -->
+    <div class="rental-card" style="margin-bottom:12px">
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div class="rental-thumb">👗</div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+            <div style="font-weight:600;font-size:14px;line-height:1.2">Robe midi en soie ivoire</div>
+            <span class="status-active">En cours</span>
+          </div>
+          <div style="font-size:12px;color:var(--text-muted)">Rouje · par Léa M.</div>
+          <div style="margin-top:10px;background:var(--warm);border-radius:8px;padding:10px;display:flex;align-items:center;justify-content:space-between">
+            <div>
+              <div class="countdown">2 jours</div>
+              <div class="countdown-label">avant retour</div>
+            </div>
+            <button class="btn-rose" style="padding:8px 14px;font-size:12px">Étiquette retour</button>
+          </div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div style="display:flex;gap:8px">
+        <button style="flex:1;border:1px solid var(--linen);border-radius:8px;padding:8px;background:white;font-family:inherit;font-size:12px;cursor:pointer">📦 Suivi colis</button>
+        <button style="flex:1;border:1px solid var(--linen);border-radius:8px;padding:8px;background:white;font-family:inherit;font-size:12px;cursor:pointer">💬 Contacter</button>
+      </div>
+    </div>
+    <!-- Upcoming -->
+    <div class="rental-card" style="margin-bottom:12px;opacity:.8">
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div class="rental-thumb">🧥</div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+            <div style="font-weight:600;font-size:14px">Blazer oversize camel</div>
+            <span class="status-pending">À venir</span>
+          </div>
+          <div style="font-size:12px;color:var(--text-muted)">Sandro · par Inès B.</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:6px">📅 Réception : 22 juin</div>
+        </div>
+      </div>
+    </div>
+    <!-- Past -->
+    <div style="margin-top:20px">
+      <div style="font-family:Georgia,serif;font-size:16px;margin-bottom:10px;color:var(--text-muted)">Terminées</div>
+      ${[['Combinaison lin blanc','Jacquemus','Mai 2026'],['Robe fleurie midi','Rouje','Avril 2026']].map(([n,b,d])=>`
+      <div style="display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--linen);cursor:pointer" onclick="nav('review')">
+        <div class="rental-thumb" style="width:44px;height:44px;font-size:18px">🌸</div>
+        <div style="flex:1">
+          <div style="font-weight:600;font-size:13px">${n}</div>
+          <div style="font-size:11px;color:var(--text-muted)">${b} · ${d}</div>
+        </div>
+        <button class="badge" style="cursor:pointer;border:none" onclick="event.stopPropagation();nav('review')">Laisser un avis</button>
+      </div>`).join('')}
+    </div>
+  </div>
+  ${renderBottomNav('rentals')}
+</div>`;
+}
+
+function renderReview() {
+  return `
+<div class="screen fade-up" style="min-height:100vh;padding-bottom:40px">
+  <div class="topbar">
+    <button class="back-btn" onclick="nav('rentals')">←</button>
+    <span class="topbar-title">Laisser un avis</span>
+    <div style="width:32px"></div>
+  </div>
+  <div style="padding:20px">
+    <div style="text-align:center;margin-bottom:24px">
+      <div style="font-size:48px;margin-bottom:12px">✨</div>
+      <div style="font-family:Georgia,serif;font-size:22px;margin-bottom:6px">Comment s'est passée votre location ?</div>
+      <div style="font-size:14px;color:var(--text-muted)">Robe midi en soie ivoire · Rouje · par Léa M.</div>
+    </div>
+    <!-- Stars -->
+    <div style="text-align:center;margin-bottom:24px">
+      <div style="font-size:14px;color:var(--text-muted);margin-bottom:12px;font-weight:600">Note globale</div>
+      <div style="display:flex;justify-content:center;gap:8px" id="star-row">
+        ${[1,2,3,4,5].map(i=>`<span class="review-star" onclick="setStars(${i})" style="font-size:36px">${reviewStars>=i?'⭐':'☆'}</span>`).join('')}
+      </div>
+    </div>
+    <!-- Quick questions -->
+    <div style="margin-bottom:20px">
+      ${[['Le fit correspondait à la description ?',['Parfait','Assez bien','Pas vraiment']],['L\'état de la pièce ?',['Excellent','Bon','Déçue']],['La communication avec Léa ?',['Super','Bonne','Difficile']]].map(([q,opts])=>`
+      <div style="background:white;border-radius:var(--radius);padding:14px;margin-bottom:8px">
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px">${q}</div>
+        <div style="display:flex;gap:6px">
+          ${opts.map((o,i)=>`<button class="chip${i===0?' active':''}" onclick="this.parentNode.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));this.classList.add('active')" style="flex:1;text-align:center;font-size:12px">${o}</button>`).join('')}
+        </div>
+      </div>`).join('')}
+    </div>
+    <!-- Photo -->
+    <div style="background:white;border-radius:var(--radius);padding:16px;margin-bottom:16px;text-align:center;cursor:pointer;border:1.5px dashed var(--linen)">
+      <div style="font-size:28px;margin-bottom:8px">📷</div>
+      <div style="font-size:13px;font-weight:600;margin-bottom:4px">Ajouter une photo</div>
+      <div style="font-size:12px;color:var(--text-muted)">Montrez la pièce portée en vrai</div>
+    </div>
+    <!-- Comment -->
+    <div class="form-group" style="margin-bottom:24px">
+      <label class="form-label">Commentaire (optionnel)</label>
+      <textarea class="form-input" rows="3" placeholder="Décrivez votre expérience…" style="resize:none;line-height:1.5"></textarea>
+    </div>
+    <button class="btn-primary" onclick="this.innerHTML='✓ Avis envoyé !';this.style.background='#1a5c2a'">Publier mon avis</button>
+  </div>
+</div>`;
+}
+
+// ── LENDER SCREENS ────────────────────────────────────────────────────────
+
+function renderLDash() {
+  return `
+<div class="screen fade-up" style="min-height:100vh;padding-bottom:80px">
+  <div style="padding:20px 20px 0">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div>
+        <div style="font-size:12px;color:var(--text-muted);font-weight:600;letter-spacing:.05em;text-transform:uppercase">Mon placard</div>
+        <div style="font-family:Georgia,serif;font-size:24px">Bonjour, Inès ✨</div>
+      </div>
+      <div class="avatar" style="width:44px;height:44px;font-size:18px;background:var(--rose)">👩‍🦱</div>
+    </div>
+    <!-- Earnings summary -->
+    <div style="background:var(--navy);border-radius:var(--radius);padding:20px;margin-bottom:16px;color:white">
+      <div style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:4px">Ce mois-ci</div>
+      <div class="earnings-big" style="color:white;font-size:36px">347€</div>
+      <div style="display:flex;gap:16px;margin-top:12px">
+        <div><div style="font-size:20px;font-family:Georgia,serif">1 280€</div><div style="font-size:11px;color:rgba(255,255,255,.5)">Total annuel</div></div>
+        <div style="width:1px;background:rgba(255,255,255,.15)"></div>
+        <div><div style="font-size:20px;font-family:Georgia,serif">23 juin</div><div style="font-size:11px;color:rgba(255,255,255,.5)">Prochain virement</div></div>
+      </div>
+    </div>
+    <!-- Active rentals -->
+    <div style="margin-bottom:20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="font-family:Georgia,serif;font-size:18px">Locations actives</div>
+        <span class="badge">2</span>
+      </div>
+      ${[['Robe midi en soie ivoire','Chloé P.','Paris','Retour le 19 juin','👗'],['Blazer oversize camel','Marie L.','Lyon','Retour le 24 juin','🧥']].map(([item,renter,city,ret,e])=>`
+      <div class="rental-card" style="margin-bottom:8px" onclick="nav('activerental')">
+        <div style="display:flex;gap:10px;align-items:center">
+          <div class="rental-thumb" style="width:48px;height:48px;font-size:20px">${e}</div>
+          <div style="flex:1">
+            <div style="font-weight:600;font-size:13px">${item}</div>
+            <div style="font-size:12px;color:var(--text-muted)">Louée à ${renter} · ${city}</div>
+            <div style="font-size:12px;color:var(--navy);font-weight:600;margin-top:2px">${ret}</div>
+          </div>
+          <span class="status-active">Actif</span>
+        </div>
+      </div>`).join('')}
+    </div>
+    <!-- Actions -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px">
+      ${[['➕','Ajouter une pièce','additem'],['📦','Mes pièces','items'],['💶','Revenus','earnings'],['🔔','Demandes (1)','booking']].map(([e,l,s])=>`
+      <button onclick="nav('${s}')" style="background:white;border:1.5px solid var(--linen);border-radius:12px;padding:16px;text-align:left;cursor:pointer;font-family:inherit;transition:all .2s;display:flex;flex-direction:column;gap:4px">
+        <span style="font-size:24px">${e}</span>
+        <span style="font-size:13px;font-weight:600;color:var(--navy)">${l}</span>
+      </button>`).join('')}
+    </div>
+    <!-- Top performer -->
+    <div style="background:white;border-radius:var(--radius);padding:16px">
+      <div style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px">⭐ Pièce star du mois</div>
+      <div style="display:flex;gap:12px;align-items:center">
+        <div class="img-placeholder" style="width:60px;height:80px;border-radius:8px;font-size:24px;background:linear-gradient(135deg,var(--linen),var(--rose))">👗</div>
+        <div>
+          <div style="font-weight:600;font-size:14px">Robe midi en soie ivoire</div>
+          <div style="font-size:12px;color:var(--text-muted)">Rouje · Taille 36</div>
+          <div style="margin-top:8px;display:flex;gap:12px">
+            <div><div style="font-family:Georgia,serif;font-size:16px">128€</div><div style="font-size:10px;color:var(--text-muted)">ce mois</div></div>
+            <div><div style="font-family:Georgia,serif;font-size:16px">8×</div><div style="font-size:10px;color:var(--text-muted)">locations</div></div>
+            <div><div class="stars" style="font-size:13px">⭐ 4.9</div><div style="font-size:10px;color:var(--text-muted)">note moy.</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  ${renderBottomNavLender('ldash')}
+</div>`;
+}
+
+function renderAddItem() {
+  const steps = ['Photos','Génération IA','Finaliser'];
+  return `
+<div class="screen fade-up" style="min-height:100vh;padding-bottom:40px">
+  <div class="topbar">
+    <button class="back-btn" onclick="nav('ldash')">←</button>
+    <span class="topbar-title">Ajouter une pièce</span>
+    <div style="width:32px"></div>
+  </div>
+  <!-- Steps -->
+  <div style="padding:0 20px;margin-bottom:20px">
+    <div style="display:flex;gap:0">
+      ${steps.map((s,i)=>`
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+        <div style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;background:${addItemStep>=i?'var(--navy)':'var(--linen)'};color:${addItemStep>=i?'white':'var(--text-muted)'}">${addItemStep>i?'✓':i+1}</div>
+        <div style="font-size:10px;font-weight:600;color:${addItemStep>=i?'var(--navy)':'var(--text-muted)'};text-align:center">${s}</div>
+      </div>
+      ${i<steps.length-1?'<div style="flex:1;height:2px;background:var(--linen);margin-top:14px;align-self:flex-start;margin-left:-8px;margin-right:-8px"></div>':''}`).join('')}
+    </div>
+  </div>
+  <div style="padding:0 20px" id="additem-content">
+    ${addItemStep===0?renderAddItemPhoto():addItemStep===1?renderAddItemAI():renderAddItemFinalize()}
+  </div>
+</div>`;
+}
+
+function renderAddItemPhoto() {
+  return `
+  <div>
+    <!-- Camera -->
+    <div class="camera-overlay" style="margin-bottom:16px">
+      <div style="position:absolute;inset:0;background:linear-gradient(180deg,#1a1a2e 0%,#2d2d4e 100%);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px">
+        <div style="font-size:72px">👗</div>
+      </div>
+      <div class="camera-guide">
+        <div style="text-align:center">
+          <div style="font-size:32px;margin-bottom:8px">📸</div>
+          <div style="color:rgba(255,255,255,.7);font-size:12px;font-weight:600">Vue de face sur fond blanc</div>
+        </div>
+      </div>
+      <div class="camera-tip">💡 Lumière naturelle · Fond blanc · Sur cintre ou porté</div>
+    </div>
+    <!-- Shot guide -->
+    <div style="display:flex;gap:8px;margin-bottom:20px">
+      ${[['✅','Face','Ajoutée'],['⬜','Dos','À prendre'],['⬜','Détail','À prendre'],['⬜','Étiquette','À prendre']].map(([s,l,st])=>`
+      <div style="flex:1;background:${s==='✅'?'var(--navy)':'white'};border:1.5px solid ${s==='✅'?'var(--navy)':'var(--linen)'};border-radius:10px;padding:10px 6px;text-align:center">
+        <div style="font-size:18px;margin-bottom:4px">${s}</div>
+        <div style="font-size:11px;font-weight:600;color:${s==='✅'?'white':'var(--navy)'}">${l}</div>
+        <div style="font-size:9px;color:${s==='✅'?'rgba(255,255,255,.6)':'var(--text-muted)'}">${st}</div>
+      </div>`).join('')}
+    </div>
+    <button class="btn-primary" onclick="addItemStep=1;render()">Générer avec l'IA →</button>
+  </div>`;
+}
+
+function renderAddItemAI() {
+  return `
+  <div>
+    <div style="text-align:center;margin-bottom:24px">
+      <div style="font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--rose-dark);margin-bottom:8px">✨ L'IA travaille…</div>
+      <div style="font-family:Georgia,serif;font-size:20px">Votre annonce en 60 secondes.</div>
+    </div>
+    <!-- AI preview fields -->
+    <div style="background:white;border-radius:var(--radius);padding:16px;margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <span style="font-size:16px">✨</span>
+        <span style="font-size:12px;font-weight:600;color:var(--navy)">Généré par l'IA · Modifiable</span>
+      </div>
+      ${[['Titre','Robe midi en soie ivoire — Rouje'],['Catégorie','Robes · Longueur midi'],['Couleur','Ivoire / Crème'],['Matière','100% soie'],['Marque','Rouje'],['Prix estimé retail','285€']].map(([l,v])=>`
+      <div style="margin-bottom:10px">
+        <div class="form-label">${l}</div>
+        <div style="font-size:14px;color:var(--navy);padding:8px 12px;background:var(--warm);border-radius:8px">${v}</div>
+      </div>`).join('')}
+    </div>
+    <div style="background:white;border-radius:var(--radius);padding:16px;margin-bottom:12px">
+      <div class="form-label">Description</div>
+      <div style="font-size:13px;color:var(--navy);line-height:1.6;padding:8px 12px;background:var(--warm);border-radius:8px">
+        Robe midi en soie ivoire, coupe fluide et élégante. Idéale pour un dîner chic ou un mariage. Fermeture zip invisible au dos. Portée 2 fois, état impeccable. Convient aux tailles 36–38.
+        <span class="cursor"></span>
+      </div>
+    </div>
+    <!-- Tags -->
+    <div style="background:white;border-radius:var(--radius);padding:16px;margin-bottom:16px">
+      <div class="form-label">Tags générés</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        ${['Soirée','Mariage','Été','Minimaliste','Soie','Français'].map(t=>`<span class="chip active">${t}</span>`).join('')}
+      </div>
+    </div>
+    <!-- Price suggestion -->
+    <div style="background:var(--linen);border-radius:12px;padding:14px;margin-bottom:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">Prix suggéré par l'IA</div>
+          <div style="font-family:Georgia,serif;font-size:22px">28€ / jour</div>
+          <div style="font-size:11px;color:var(--text-muted)">Basé sur 14 pièces similaires actives</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:11px;color:var(--text-muted)">Fourchette</div>
+          <div style="font-weight:600;font-size:13px">22€ – 38€</div>
+        </div>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="addItemStep=2;render()">Confirmer et finaliser →</button>
+  </div>`;
+}
+
+function renderAddItemFinalize() {
+  return `
+  <div>
+    <div style="background:white;border-radius:var(--radius);padding:16px;margin-bottom:12px">
+      <div class="form-label">Ajuster le prix</div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+        <input class="form-input" type="number" value="28" style="width:100px;text-align:center;font-size:20px;font-weight:700"/>
+        <span style="font-size:14px;color:var(--text-muted)">€ / jour</span>
+      </div>
+      <div style="font-size:12px;color:var(--text-muted)">Weekend 4j = 112€ · Semaine 8j = 196€ · 2 sem = 336€</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Note personnelle (optionnelle)</label>
+      <textarea class="form-input" rows="2" placeholder="Ex: 'Je la porte en 36 mais convient aussi en 38…'" style="resize:none"></textarea>
+    </div>
+    <div style="background:white;border-radius:var(--radius);padding:16px;margin-bottom:16px">
+      <div class="form-label" style="margin-bottom:10px">Disponibilité</div>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:14px;font-weight:600">Disponible maintenant</div>
+          <div style="font-size:12px;color:var(--text-muted)">Apparaît dans le feed immédiatement</div>
+        </div>
+        <div style="width:48px;height:28px;background:var(--navy);border-radius:14px;position:relative;cursor:pointer">
+          <div style="width:22px;height:22px;background:white;border-radius:50%;position:absolute;right:3px;top:3px"></div>
+        </div>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="this.innerHTML='✓ Pièce publiée !';this.style.background='#1a5c2a'">Publier ma pièce →</button>
+  </div>`;
+}
+
+function renderItems() {
+  return `
+<div class="screen fade-up" style="min-height:100vh;padding-bottom:80px">
+  <div class="topbar">
+    <button class="back-btn" onclick="nav('ldash')">←</button>
+    <span class="topbar-title">Mes pièces</span>
+    <button class="icon-btn" onclick="nav('additem')">➕</button>
+  </div>
+  <div style="padding:0 20px">
+    <!-- Filter -->
+    <div style="display:flex;gap:8px;margin-bottom:16px;overflow-x:auto;scrollbar-width:none">
+      ${['Toutes (8)','En location (2)','Disponibles (5)','En pause (1)'].map((t,i)=>`<button class="chip${i===0?' active':''}">${t}</button>`).join('')}
+    </div>
+    <!-- Items list -->
+    ${[
+      ['Robe midi en soie ivoire','Rouje','T36','active','8 locations · 224€',28,'👗'],
+      ['Blazer oversize camel','Sandro','T38','active','5 locations · 110€',22,'🧥'],
+      ['Combinaison lin blanc','Jacquemus','T36','available','3 locations · 108€',36,'🤍'],
+      ['Manteau camel en laine','A.P.C.','T36','available','12 locations · 504€',42,'🍂'],
+      ['Robe dos nu bordeaux','Ba&sh','T36','available','6 locations · 192€',32,'❤️'],
+      ['Robe fleurie midi','Rouje','T38','paused','1 location · 26€',26,'🌸'],
+    ].map(([name,brand,size,status,stats,price,e])=>`
+    <div style="background:white;border-radius:var(--radius);padding:14px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start">
+      <div class="img-placeholder" style="width:56px;height:72px;border-radius:8px;font-size:24px;background:linear-gradient(135deg,var(--linen),var(--rose))">${e}</div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:start;justify-content:space-between;margin-bottom:2px">
+          <div style="font-weight:600;font-size:13px;line-height:1.3;max-width:180px">${name}</div>
+          <span class="status-${status==='active'?'active':status==='available'?'pending':status==='paused'?'paused':'returned'}">${status==='active'?'En location':status==='available'?'Disponible':status==='paused'?'En pause':'Retourné'}</span>
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px">${brand} · ${size} · ${price}€/j</div>
+        <div style="font-size:11px;color:var(--navy);font-weight:600">${stats}</div>
+        <div style="display:flex;gap:6px;margin-top:8px">
+          <button class="chip" style="font-size:11px;padding:5px 10px">Modifier</button>
+          <button class="chip" style="font-size:11px;padding:5px 10px">${status==='paused'?'Réactiver':'Suspendre'}</button>
+          <button class="chip" style="font-size:11px;padding:5px 10px">Calendrier</button>
+        </div>
+      </div>
+    </div>`).join('')}
+  </div>
+  ${renderBottomNavLender('items')}
+</div>`;
+}
+
+function renderEarnings() {
+  return `
+<div class="screen fade-up" style="min-height:100vh;padding-bottom:80px">
+  <div class="topbar">
+    <button class="back-btn" onclick="nav('ldash')">←</button>
+    <span class="topbar-title">Revenus</span>
+    <div style="width:32px"></div>
+  </div>
+  <div style="padding:0 20px">
+    <!-- Total -->
+    <div style="background:var(--navy);border-radius:var(--radius);padding:20px;margin-bottom:20px;color:white;text-align:center">
+      <div style="font-size:12px;color:rgba(255,255,255,.5);margin-bottom:4px">Total 2026</div>
+      <div class="earnings-big" style="color:white">1 280€</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.5);margin-top:8px">Projection annuelle : <strong style="color:white">2 560€</strong></div>
+    </div>
+    <!-- Chart -->
+    <div style="background:white;border-radius:var(--radius);padding:16px;margin-bottom:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div style="font-family:Georgia,serif;font-size:16px">Par mois</div>
+        <div style="display:flex;gap:6px">
+          <button class="chip active" style="font-size:11px;padding:5px 10px">2026</button>
+        </div>
+      </div>
+      <div class="chart-container">
+        ${[['Jan',42],['Fév',68],['Mar',95],['Avr',124],['Mai',178],['Jun',347]].map(([m,v])=>`
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center">
+          <div class="chart-bar" style="height:${Math.round(v/347*100)}%">
+            <div style="position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-size:9px;font-weight:600;color:var(--navy);white-space:nowrap">${v}€</div>
+          </div>
+          <div class="chart-label">${m}</div>
+        </div>`).join('')}
+      </div>
+    </div>
+    <!-- Per item -->
+    <div style="background:white;border-radius:var(--radius);padding:16px;margin-bottom:16px">
+      <div style="font-family:Georgia,serif;font-size:16px;margin-bottom:12px">Par pièce</div>
+      ${[['Robe midi ivoire','8 loc · 18j loués','224€','👗'],['Manteau A.P.C.','12 loc · 48j loués','504€','🍂'],['Blazer Sandro','5 loc · 15j loués','110€','🧥'],['Combinaison Jacquemus','3 loc · 12j loués','108€','🤍']].map(([name,stats,rev,e])=>`
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--linen)">
+        <div class="img-placeholder" style="width:40px;height:52px;border-radius:6px;font-size:18px;background:linear-gradient(135deg,var(--linen),var(--rose))">${e}</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:600">${name}</div>
+          <div style="font-size:11px;color:var(--text-muted)">${stats}</div>
+        </div>
+        <div style="font-family:Georgia,serif;font-size:16px;font-weight:normal">${rev}</div>
+      </div>`).join('')}
+    </div>
+    <!-- Payout history -->
+    <div style="background:white;border-radius:var(--radius);padding:16px;margin-bottom:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div style="font-family:Georgia,serif;font-size:16px">Virements</div>
+        <button style="background:none;border:none;font-size:12px;color:var(--navy);cursor:pointer;font-weight:600;font-family:inherit">⬇ CSV</button>
+      </div>
+      ${[['14 juin','178€','✓ Reçu'],['7 juin','124€','✓ Reçu'],['31 mai','95€','✓ Reçu']].map(([d,a,s])=>`
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--linen)">
+        <div><div style="font-size:13px;font-weight:600">${a}</div><div style="font-size:11px;color:var(--text-muted)">${d}</div></div>
+        <span class="badge-green">${s}</span>
+      </div>`).join('')}
+    </div>
+  </div>
+  ${renderBottomNavLender('earnings')}
+</div>`;
+}
+
+function renderBooking() {
+  return `
+<div class="screen fade-up" style="min-height:100vh;padding-bottom:40px">
+  <div class="topbar">
+    <button class="back-btn" onclick="nav('ldash')">←</button>
+    <span class="topbar-title">Demande de location</span>
+    <div style="width:32px"></div>
+  </div>
+  <div style="padding:0 20px">
+    <!-- Renter profile -->
+    <div style="background:white;border-radius:var(--radius);padding:16px;margin-bottom:12px">
+      <div style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:12px">Loueuse</div>
+      <div style="display:flex;gap:12px;align-items:center;margin-bottom:14px">
+        <div class="avatar" style="width:52px;height:52px;font-size:22px;background:var(--rose)">👩</div>
+        <div>
+          <div style="font-weight:700;font-size:16px">Chloé Petit</div>
+          <div style="font-size:12px;color:var(--text-muted)">Paris · Membre depuis mars 2025</div>
+          <div style="display:flex;gap:8px;margin-top:4px">
+            <span class="badge-green">✓ Identité vérifiée</span>
+            <span class="badge">⭐ 4.8</span>
+          </div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center;background:var(--warm);border-radius:10px;padding:12px">
+        <div><div style="font-weight:700;font-size:16px">6</div><div style="font-size:10px;color:var(--text-muted)">locations</div></div>
+        <div><div style="font-weight:700;font-size:16px">100%</div><div style="font-size:10px;color:var(--text-muted)">taux retour</div></div>
+        <div><div style="font-weight:700;font-size:16px">0</div><div style="font-size:10px;color:var(--text-muted)">incidents</div></div>
+      </div>
+    </div>
+    <!-- Item & dates -->
+    <div style="background:white;border-radius:var(--radius);padding:16px;margin-bottom:12px">
+      <div style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:12px">Demande</div>
+      <div style="display:flex;gap:12px;align-items:center;margin-bottom:14px">
+        <div class="img-placeholder" style="width:56px;height:72px;border-radius:8px;font-size:24px;background:linear-gradient(135deg,var(--linen),var(--rose))">👗</div>
+        <div>
+          <div style="font-weight:600;font-size:14px">Robe midi en soie ivoire</div>
+          <div style="font-size:12px;color:var(--text-muted)">Rouje · Taille 36</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+        <div style="background:var(--warm);border-radius:8px;padding:10px;text-align:center">
+          <div style="font-size:10px;color:var(--text-muted);margin-bottom:2px">Début</div>
+          <div style="font-weight:700">Lun. 15 juin</div>
+        </div>
+        <div style="background:var(--warm);border-radius:8px;padding:10px;text-align:center">
+          <div style="font-size:10px;color:var(--text-muted);margin-bottom:2px">Retour</div>
+          <div style="font-weight:700">Ven. 19 juin</div>
+        </div>
+      </div>
+      <div class="checkout-row" style="padding:10px 0">
+        <span style="font-size:13px">Location 4 jours</span><span style="font-weight:700">112€</span>
+      </div>
+      <div class="checkout-row" style="border-bottom:none;padding:6px 0">
+        <span style="font-size:13px">Votre part (80%)</span><span style="font-weight:700;color:var(--navy)">89,60€</span>
+      </div>
+    </div>
+    <!-- Deadline -->
+    <div style="background:var(--linen);border-radius:10px;padding:12px 14px;margin-bottom:20px;font-size:12px;line-height:1.5">
+      ⏱ Vous avez jusqu'au <strong>dimanche 13 juin à 23h</strong> pour accepter ou refuser. Sans réponse, la demande est annulée automatiquement.
+    </div>
+    <!-- Actions -->
+    <button class="btn-primary" style="margin-bottom:10px" onclick="this.innerHTML='✓ Demande acceptée !';this.style.background='#1a5c2a'">Accepter la demande →</button>
+    <button class="btn-outline" onclick="this.innerHTML='Demande refusée';this.style.opacity='.5'">Refuser</button>
+  </div>
+</div>`;
+}
+
+function renderActiveRental() {
+  return `
+<div class="screen fade-up" style="min-height:100vh;padding-bottom:40px">
+  <div class="topbar">
+    <button class="back-btn" onclick="nav('ldash')">←</button>
+    <span class="topbar-title">Location en cours</span>
+    <div style="width:32px"></div>
+  </div>
+  <div style="padding:0 20px">
+    <!-- Status banner -->
+    <div style="background:var(--navy);border-radius:var(--radius);padding:16px;margin-bottom:16px;color:white;text-align:center">
+      <div style="font-size:28px;margin-bottom:8px">📦</div>
+      <div style="font-family:Georgia,serif;font-size:18px;margin-bottom:4px">Pièce chez Chloé P.</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.6)">Retour attendu le 19 juin · Dans 2 jours</div>
+    </div>
+    <!-- Item -->
+    <div style="background:white;border-radius:var(--radius);padding:16px;margin-bottom:12px;display:flex;gap:12px;align-items:center">
+      <div class="img-placeholder" style="width:60px;height:80px;border-radius:8px;font-size:28px;background:linear-gradient(135deg,var(--linen),var(--rose))">👗</div>
+      <div>
+        <div style="font-weight:600;font-size:14px">Robe midi en soie ivoire</div>
+        <div style="font-size:12px;color:var(--text-muted)">Rouje · Taille 36</div>
+        <div style="margin-top:8px"><span class="status-active">En cours</span></div>
+      </div>
+    </div>
+    <!-- Timeline -->
+    <div style="background:white;border-radius:var(--radius);padding:16px;margin-bottom:12px">
+      <div style="font-family:Georgia,serif;font-size:16px;margin-bottom:14px">Suivi</div>
+      ${[
+        ['✅','13 juin','Demande acceptée'],
+        ['✅','14 juin','Expédiée via Mondial Relay'],
+        ['✅','15 juin','Réceptionnée par Chloé'],
+        ['⏳','19 juin','Retour attendu'],
+        ['⬜','21 juin','Réception du retour'],
+      ].map(([s,d,l])=>`
+      <div style="display:flex;gap:12px;align-items:flex-start;padding:8px 0">
+        <span style="font-size:16px;width:24px;flex-shrink:0">${s}</span>
+        <div>
+          <div style="font-size:12px;color:var(--text-muted)">${d}</div>
+          <div style="font-size:13px;font-weight:${s==='⏳'?'700':'500'};color:${s==='⏳'?'var(--navy)':'inherit'}">${l}</div>
+        </div>
+      </div>`).join('')}
+    </div>
+    <!-- Earnings counter -->
+    <div style="background:var(--linen);border-radius:var(--radius);padding:16px;margin-bottom:16px;text-align:center">
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">Gagné pour cette location</div>
+      <div style="font-family:Georgia,serif;font-size:32px">89,60€</div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Virement le 23 juin</div>
+    </div>
+    <!-- Return actions -->
+    <div style="background:white;border-radius:var(--radius);padding:16px;margin-bottom:20px">
+      <div style="font-family:Georgia,serif;font-size:16px;margin-bottom:12px">À la réception du retour</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-primary" style="background:#1a5c2a;font-size:14px" onclick="this.innerHTML='✓ Paiement libéré'">✅ Tout est parfait</button>
+        <button class="btn-outline" style="font-size:14px;color:#842029;border-color:#842029" onclick="nav('ldash')">⚠️ Signaler</button>
+      </div>
+    </div>
+  </div>
+</div>`;
+}
+
+// ── BOTTOM NAVS ───────────────────────────────────────────────────────────
+function renderBottomNav(active) {
+  return `
+  <div class="bottom-nav">
+    ${[['🏠','Accueil','home'],['🔍','Recherche','search'],['♡','Wishlist','home'],['📦','Locations','rentals'],['👤','Profil','home']].map(([icon,label,screen])=>`
+    <button class="bnav-item${active===screen&&label!=='Wishlist'&&label!=='Profil'?' active':''}" onclick="nav('${screen}')">
+      <span class="bnav-icon">${icon}</span>
+      <span>${label}</span>
+    </button>`).join('')}
+  </div>`;
+}
+function renderBottomNavLender(active) {
+  return `
+  <div class="bottom-nav">
+    ${[['🏠','Accueil','ldash'],['📦','Pièces','items'],['💶','Revenus','earnings'],['🔔','Demandes','booking'],['👤','Profil','ldash']].map(([icon,label,screen])=>`
+    <button class="bnav-item${active===screen?' active':''}" onclick="nav('${screen}')">
+      <span class="bnav-icon">${icon}</span>
+      <span>${label}</span>
+    </button>`).join('')}
+  </div>`;
+}
+
+// ── EVENT LOGIC ───────────────────────────────────────────────────────────
+function attachEvents() {}
+
+function quizSelect(step, val, isMulti) {
+  if (isMulti) {
+    const arr = quizAnswers[step] || [];
+    const idx = arr.indexOf(val);
+    if (idx === -1) arr.push(val); else arr.splice(idx, 1);
+    quizAnswers[step] = arr;
+  } else {
+    quizAnswers[step] = val;
+  }
+  render();
+}
+function quizNext() {
+  if (quizStep < QUIZ_QUESTIONS.length - 1) { quizStep++; render(); }
+  else { nav('fit'); }
+}
+function quizBack() { if (quizStep > 0) { quizStep--; render(); } }
+function setStars(n) { reviewStars = n; render(); }
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>
