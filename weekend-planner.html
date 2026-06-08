@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weekend Mode</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --sand: #f5f0e8;
+      --warm-white: #fdfbf7;
+      --clay: #c4785a;
+      --clay-dark: #a85f43;
+      --ink: #2c2416;
+      --ink-light: #6b5c44;
+      --mist: #e8e0d4;
+      --sage: #7a9e7e;
+      --radius: 16px;
+      --radius-sm: 10px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--sand);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px 48px;
+    }
+
+    header { text-align: center; margin-bottom: 36px; padding-top: 12px; }
+
+    .wordmark {
+      font-size: 13px; font-weight: 600; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--clay); margin-bottom: 10px;
+    }
+
+    h1 { font-size: clamp(28px, 6vw, 40px); font-weight: 700; line-height: 1.15; color: var(--ink); }
+
+    .subtitle { margin-top: 8px; font-size: 15px; color: var(--ink-light); line-height: 1.5; }
+
+    .card {
+      background: var(--warm-white); border-radius: var(--radius);
+      padding: 28px 24px; width: 100%; max-width: 480px;
+      box-shadow: 0 2px 12px rgba(44,36,22,0.07);
+    }
+
+    .questions { display: flex; flex-direction: column; gap: 28px; }
+
+    .question-label {
+      font-size: 13px; font-weight: 600; letter-spacing: 0.06em;
+      text-transform: uppercase; color: var(--ink-light); margin-bottom: 12px;
+    }
+
+    .slider-row {
+      display: flex; justify-content: space-between;
+      font-size: 12px; color: var(--ink-light); margin-top: 10px;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none; width: 100%; height: 6px; border-radius: 3px;
+      background: linear-gradient(to right, var(--clay) 0%, var(--clay) var(--pct,50%), var(--mist) var(--pct,50%), var(--mist) 100%);
+      outline: none; cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%;
+      background: var(--clay); box-shadow: 0 2px 6px rgba(196,120,90,0.4);
+      cursor: pointer; transition: transform 0.1s;
+    }
+    input[type="range"]:active::-webkit-slider-thumb { transform: scale(1.15); }
+
+    .toggle-group { display: flex; gap: 8px; }
+
+    .toggle-btn {
+      flex: 1; padding: 12px 8px; border-radius: var(--radius-sm);
+      border: 2px solid var(--mist); background: transparent;
+      font-size: 14px; font-weight: 500; color: var(--ink-light);
+      cursor: pointer; transition: all 0.15s; text-align: center;
+    }
+    .toggle-btn.active { border-color: var(--clay); background: var(--clay); color: white; }
+
+    .vibe-group { display: flex; flex-direction: column; gap: 8px; }
+
+    .vibe-btn {
+      padding: 13px 16px; border-radius: var(--radius-sm);
+      border: 2px solid var(--mist); background: transparent;
+      font-size: 14px; font-weight: 500; color: var(--ink-light);
+      cursor: pointer; transition: all 0.15s; text-align: left;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .vibe-btn .vibe-icon { font-size: 18px; }
+    .vibe-btn.active { border-color: var(--clay); background: #fdf3ee; color: var(--ink); }
+
+    .cta-btn {
+      width: 100%; padding: 17px; border-radius: var(--radius-sm);
+      border: none; background: var(--clay); color: white;
+      font-size: 16px; font-weight: 600; cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      margin-top: 8px; display: flex; align-items: center;
+      justify-content: center; gap: 8px;
+    }
+    .cta-btn:hover { background: var(--clay-dark); }
+    .cta-btn:active { transform: scale(0.98); }
+    .cta-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .api-key-section { margin-bottom: 16px; }
+
+    .api-key-input {
+      width: 100%; padding: 12px 14px; border-radius: var(--radius-sm);
+      border: 2px solid var(--mist); background: var(--sand);
+      font-size: 14px; font-family: monospace; color: var(--ink);
+      outline: none; transition: border-color 0.15s;
+    }
+    .api-key-input:focus { border-color: var(--clay); }
+    .api-key-input::placeholder { color: #b5a898; font-family: -apple-system, sans-serif; }
+
+    .api-key-hint { font-size: 12px; color: var(--ink-light); margin-top: 6px; line-height: 1.5; }
+
+    #plan-section { width: 100%; max-width: 480px; margin-top: 24px; }
+
+    .plan-card {
+      background: var(--warm-white); border-radius: var(--radius);
+      overflow: hidden; box-shadow: 0 2px 12px rgba(44,36,22,0.07);
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .plan-header { background: var(--clay); padding: 20px 24px; color: white; }
+    .plan-header .plan-title { font-size: 18px; font-weight: 700; line-height: 1.3; }
+    .plan-header .plan-reason { margin-top: 6px; font-size: 13px; opacity: 0.85; line-height: 1.5; }
+
+    .plan-body { padding: 24px; }
+
+    .day-section { margin-bottom: 24px; }
+    .day-section:last-child { margin-bottom: 0; }
+
+    .day-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--clay); margin-bottom: 12px;
+    }
+
+    .activity { display: flex; gap: 12px; margin-bottom: 12px; }
+
+    .activity-time {
+      font-size: 12px; color: var(--ink-light); min-width: 60px;
+      padding-top: 1px; font-variant-numeric: tabular-nums;
+    }
+
+    .activity-detail { flex: 1; }
+    .activity-name { font-size: 15px; font-weight: 600; color: var(--ink); line-height: 1.3; }
+    .activity-desc { font-size: 13px; color: var(--ink-light); margin-top: 2px; line-height: 1.5; }
+
+    .change-note {
+      background: #f0f5f1; border-left: 3px solid var(--sage);
+      border-radius: 0 8px 8px 0; padding: 12px 14px;
+      margin: 0 24px 20px; font-size: 13px; color: #3d6642; line-height: 1.5;
+    }
+
+    .regenerate-btn {
+      width: calc(100% - 48px); margin: 0 24px 24px; padding: 14px;
+      border-radius: var(--radius-sm); border: 2px solid var(--clay);
+      background: transparent; color: var(--clay); font-size: 14px;
+      font-weight: 600; cursor: pointer; transition: all 0.15s;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .regenerate-btn:hover { background: var(--clay); color: white; }
+    .regenerate-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .loading-card {
+      background: var(--warm-white); border-radius: var(--radius);
+      padding: 40px 24px; text-align: center;
+      box-shadow: 0 2px 12px rgba(44,36,22,0.07); animation: slideUp 0.3s ease;
+    }
+
+    .spinner {
+      width: 36px; height: 36px; border: 3px solid var(--mist);
+      border-top-color: var(--clay); border-radius: 50%;
+      animation: spin 0.8s linear infinite; margin: 0 auto 16px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-text { font-size: 15px; color: var(--ink-light); line-height: 1.5; }
+    .loading-sub { font-size: 13px; color: #b5a898; margin-top: 6px; }
+
+    .error-card {
+      background: #fff5f5; border-radius: var(--radius);
+      padding: 20px 24px; border: 1px solid #fccaca;
+      font-size: 14px; color: #7a2020; line-height: 1.5;
+      animation: slideUp 0.3s ease;
+    }
+
+    .divider { height: 1px; background: var(--mist); margin: 4px 0 20px; }
+
+    @media (min-width: 500px) { .card { padding: 32px 28px; } }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="wordmark">Weekend Mode</div>
+  <h1>What are you doing<br>this weekend?</h1>
+  <p class="subtitle">Answer three questions. Get one plan.<br>No options, no overwhelm.</p>
+</header>
+
+<div class="card">
+  <div class="api-key-section">
+    <div class="question-label">Your Anthropic API Key</div>
+    <input type="password" id="api-key" class="api-key-input"
+      placeholder="sk-ant-..." autocomplete="off" spellcheck="false" />
+    <p class="api-key-hint">Stays in your browser. Never sent anywhere except Anthropic's API.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="questions">
+    <div>
+      <div class="question-label">How's your energy?</div>
+      <input type="range" id="energy" min="1" max="5" value="3" style="--pct:50%" />
+      <div class="slider-row">
+        <span>🛋️ Need to recharge</span>
+        <span>⚡ Ready for anything</span>
+      </div>
+    </div>
+
+    <div>
+      <div class="question-label">Solo or with someone?</div>
+      <div class="toggle-group" id="company-group">
+        <button class="toggle-btn active" data-group="company" data-value="solo">🙋 Just me</button>
+        <button class="toggle-btn" data-group="company" data-value="partner">👫 Partner / friend</button>
+        <button class="toggle-btn" data-group="company" data-value="group">👥 Small group</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="question-label">What sounds right?</div>
+      <div class="vibe-group" id="vibe-group">
+        <button class="vibe-btn active" data-group="vibe" data-value="local">
+          <span class="vibe-icon">🏙️</span> Stay local — my neighborhood, my turf
+        </button>
+        <button class="vibe-btn" data-group="vibe" data-value="escape">
+          <span class="vibe-icon">🌿</span> Get out of the city — I need a change of scene
+        </button>
+        <button class="vibe-btn" data-group="vibe" data-value="open">
+          <span class="vibe-icon">🎲</span> No preference — surprise me
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:28px">
+    <button class="cta-btn" id="generate-btn">
+      <span>Plan my weekend</span><span>→</span>
+    </button>
+  </div>
+</div>
+
+<div id="plan-section"></div>
+
+<script>
+(function () {
+  var state = { energy: 3, company: 'solo', vibe: 'local' };
+  var planCount = 0;
+  var previousPlans = [];
+
+  // Slider
+  var energyEl = document.getElementById('energy');
+  energyEl.addEventListener('input', function () {
+    var min = +this.min, max = +this.max, val = +this.value;
+    var pct = ((val - min) / (max - min)) * 100;
+    this.style.setProperty('--pct', pct + '%');
+    state.energy = val;
+  });
+
+  // Toggle buttons (company + vibe)
+  document.querySelectorAll('.toggle-btn, .vibe-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var group = this.dataset.group;
+      document.querySelectorAll('[data-group="' + group + '"]').forEach(function (b) {
+        b.classList.remove('active');
+      });
+      this.classList.add('active');
+      state[group] = this.dataset.value;
+    });
+  });
+
+  // Generate button
+  document.getElementById('generate-btn').addEventListener('click', function () {
+    generatePlan(false);
+  });
+
+  // Delegated click for regenerate button (rendered later)
+  document.getElementById('plan-section').addEventListener('click', function (e) {
+    var btn = e.target.closest('.regenerate-btn');
+    if (btn && !btn.disabled) generatePlan(true);
+  });
+
+  function buildPrompt(isRegenerate) {
+    var energyLabels = {
+      1: 'very low (I\'m exhausted)',
+      2: 'low (mellow vibes only)',
+      3: 'medium (open to moderate activity)',
+      4: 'high (ready to move)',
+      5: 'very high (let\'s go all out)'
+    };
+    var companyLabels = {
+      solo: 'alone',
+      partner: 'with a partner or one close friend',
+      group: 'with a small group of 3-5 people'
+    };
+    var vibeLabels = {
+      local: 'staying in my neighborhood / city',
+      escape: 'getting out of the city for nature or a day trip',
+      open: 'open to anything - no strong preference'
+    };
+
+    var regenContext = '';
+    if (isRegenerate && previousPlans.length > 0) {
+      regenContext = '\n\nThis is regeneration #' + planCount + '. Previous plan(s) had these themes: ' +
+        previousPlans.map(function (p) { return '"' + p + '"'; }).join('; ') +
+        '. Make this one genuinely different - different anchoring activity, different rhythm, different feel. ' +
+        'Include the "what_changed" key in your JSON (one sentence on what is different).';
+    }
+
+    return 'You are a weekend planning expert. Give one specific, opinionated weekend plan. Not a list of options - one plan. Be decisive and concrete.\n\n' +
+      'Person\'s inputs:\n' +
+      '- Energy level: ' + energyLabels[state.energy] + '\n' +
+      '- Company: ' + companyLabels[state.company] + '\n' +
+      '- Vibe preference: ' + vibeLabels[state.vibe] + '\n\n' +
+      'Return ONLY valid JSON (no markdown, no code fences) in exactly this structure:\n' +
+      '{\n' +
+      '  "title": "A short evocative name for this weekend (5 words max)",\n' +
+      '  "reason": "One sentence: why this plan fits their mood right now",\n' +
+      '  "what_changed": "Only on regeneration - what is different from before. Omit this key on first generation.",\n' +
+      '  "saturday": [\n' +
+      '    { "time": "9am", "name": "Activity name", "detail": "1-2 sentences of specific, actionable detail. Name actual places, foods, or experiences." }\n' +
+      '  ],\n' +
+      '  "sunday": [\n' +
+      '    { "time": "9am", "name": "Activity name", "detail": "1-2 sentences of specific, actionable detail." }\n' +
+      '  ]\n' +
+      '}\n\n' +
+      'Rules:\n' +
+      '- 3-4 activities per day\n' +
+      '- Times should be realistic, not packed back-to-back\n' +
+      '- Match energy level: low = gentle/restorative, high = physical/adventurous\n' +
+      '- Be specific: "cortado at a neighborhood cafe and read for 90 minutes" not just "get coffee"\n' +
+      '- The plan should feel cohesive, not a random list\n' +
+      '- No hedging, no "you could also..." - commit' + regenContext;
+  }
+
+  function callClaude(prompt) {
+    var apiKey = document.getElementById('api-key').value.trim();
+    if (!apiKey) return Promise.reject(new Error('Please enter your Anthropic API key above.'));
+
+    return fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1200,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    }).then(function (res) {
+      return res.json().then(function (data) {
+        if (!res.ok) throw new Error((data.error && data.error.message) || ('API error ' + res.status));
+        return data.content[0].text;
+      });
+    });
+  }
+
+  function renderPlan(plan, isRegenerate) {
+    var changeNote = '';
+    if (isRegenerate && plan.what_changed) {
+      changeNote = '<div class="change-note">↺ ' + esc(plan.what_changed) + '</div>';
+    }
+
+    function renderActivities(activities) {
+      return activities.map(function (a) {
+        return '<div class="activity">' +
+          '<div class="activity-time">' + esc(a.time) + '</div>' +
+          '<div class="activity-detail">' +
+          '<div class="activity-name">' + esc(a.name) + '</div>' +
+          '<div class="activity-desc">' + esc(a.detail) + '</div>' +
+          '</div></div>';
+      }).join('');
+    }
+
+    document.getElementById('plan-section').innerHTML =
+      '<div class="plan-card">' +
+        '<div class="plan-header">' +
+          '<div class="plan-title">' + esc(plan.title) + '</div>' +
+          '<div class="plan-reason">' + esc(plan.reason) + '</div>' +
+        '</div>' +
+        changeNote +
+        '<div class="plan-body">' +
+          '<div class="day-section">' +
+            '<div class="day-label">Saturday</div>' +
+            renderActivities(plan.saturday) +
+          '</div>' +
+          '<div class="day-section">' +
+            '<div class="day-label">Sunday</div>' +
+            renderActivities(plan.sunday) +
+          '</div>' +
+        '</div>' +
+        '<button class="regenerate-btn">↺ Give me a different plan</button>' +
+      '</div>';
+  }
+
+  function renderLoading() {
+    var msgs = ['Thinking about your weekend…', 'Crafting something just for you…', 'Putting it all together…'];
+    var msg = msgs[Math.floor(Math.random() * msgs.length)];
+    document.getElementById('plan-section').innerHTML =
+      '<div class="loading-card">' +
+        '<div class="spinner"></div>' +
+        '<div class="loading-text">' + msg + '</div>' +
+        '<div class="loading-sub">Usually takes 5–10 seconds</div>' +
+      '</div>';
+  }
+
+  function renderError(message) {
+    document.getElementById('plan-section').innerHTML =
+      '<div class="error-card">⚠️ ' + esc(message) + '</div>';
+  }
+
+  function esc(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function generatePlan(isRegenerate) {
+    var genBtn = document.getElementById('generate-btn');
+    genBtn.disabled = true;
+    renderLoading();
+
+    callClaude(buildPrompt(isRegenerate)).then(function (raw) {
+      var plan;
+      try {
+        plan = JSON.parse(raw.trim());
+      } catch (e) {
+        var match = raw.match(/\{[\s\S]*\}/);
+        if (match) {
+          plan = JSON.parse(match[0]);
+        } else {
+          throw new Error('The AI returned an unexpected format. Try again.');
+        }
+      }
+
+      planCount++;
+      previousPlans.push(plan.title);
+      if (previousPlans.length > 3) previousPlans.shift();
+
+      renderPlan(plan, isRegenerate);
+      document.getElementById('plan-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }).catch(function (err) {
+      renderError(err.message || 'Something went wrong. Check your API key and try again.');
+    }).then(function () {
+      genBtn.disabled = false;
+    });
+  }
+})();
+</script>
+</body>
+</html>
